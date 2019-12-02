@@ -38,7 +38,7 @@ public class ZookeeperRegist implements RegistCenter {
     private ZooKeeper connectServer(){
         ZooKeeper zk = null;
         try {
-            zk = new ZooKeeper(rpc_regist_address, 15000, new Watcher() {
+            zk = new ZooKeeper(rpc_regist_address, 360000, new Watcher() {
                 public void process(WatchedEvent watchedEvent) {
                     if (watchedEvent.getState() == Event.KeeperState.SyncConnected){
                         latch.countDown();

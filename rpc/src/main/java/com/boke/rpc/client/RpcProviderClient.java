@@ -14,16 +14,16 @@ import java.util.Map;
 
 public class RpcProviderClient {
 
-    private final int port = 13579;
+    private int port;
 
-    public RpcProviderClient(Map<String, Object> handlerMap) {
+    public RpcProviderClient(Map<String, Object> handlerMap, int port) {
+        this.port = port;
         bind(handlerMap);
     }
 
     private void bind(Map<String, Object> handlerMap) {
         EventLoopGroup boss = new NioEventLoopGroup();
         EventLoopGroup worker = new NioEventLoopGroup();
-
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(boss, worker);
@@ -44,7 +44,7 @@ public class RpcProviderClient {
             });
             ChannelFuture channelFuture = bootstrap.bind(port).sync();
             if (channelFuture.isSuccess()) {
-                System.err.println("启动Netty服务成功，端口号：" + this.port);
+                System.err.println("启动Netty服务成功，端口号：" + port);
             }
             // 关闭连接
             channelFuture.channel().closeFuture().sync();
@@ -57,4 +57,6 @@ public class RpcProviderClient {
             worker.shutdownGracefully();
         }
     }
+
+
 }

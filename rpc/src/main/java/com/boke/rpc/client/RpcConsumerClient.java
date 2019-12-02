@@ -13,10 +13,9 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
-public class RpcConsumerClient{
+public class RpcConsumerClient {
 
     private String host;
-    private final int port = 13579;
     private RpcResponse response;
 
     public RpcConsumerClient(String host, RpcRequest request) throws InterruptedException {
@@ -38,7 +37,7 @@ public class RpcConsumerClient{
             bootstrap.channel(NioSocketChannel.class);
             bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
             bootstrap.group(eventLoopGroup);
-            bootstrap.remoteAddress(host, port);
+            bootstrap.remoteAddress(host.split(":")[0], Integer.parseInt(host.split(":")[1]));
             bootstrap.handler(new ChannelInitializer<SocketChannel>() {
                 @Override
                 protected void initChannel(SocketChannel socketChannel)
@@ -49,9 +48,9 @@ public class RpcConsumerClient{
                             .addLast(handle);
                 }
             });
-            ChannelFuture channelFuture = bootstrap.connect(host, port).sync();
+            ChannelFuture channelFuture = bootstrap.connect(host.split(":")[0], Integer.parseInt(host.split(":")[1])).sync();
             if (channelFuture.isSuccess()) {
-                System.out.println("连接服务器成功url：" + host + "端口：" + port);
+                System.out.println("连接服务器成功url：" + host.split(":")[0] + "端口：" + Integer.parseInt(host.split(":")[1]));
             }
             channelFuture.channel().closeFuture().sync();
             this.response = handle.getRpcResponse();

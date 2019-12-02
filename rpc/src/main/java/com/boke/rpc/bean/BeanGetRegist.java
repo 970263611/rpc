@@ -15,11 +15,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -31,18 +27,26 @@ public class BeanGetRegist implements BeanDefinitionRegistryPostProcessor, Appli
     private int frequency = 0;
 
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) {
-        if(frequency < 3){
-            if(nodes != null){
-                //这里一般我们是通过反射获取需要代理的接口的clazz列表
-                //比如判断包下面的类，或者通过某注解标注的类等等
+        if (frequency < 3) {
+            if (nodes != null) {
                 Set<Class<?>> beanClazzs = new HashSet<Class<?>>();
+                Set<String> classNames = new HashSet<String>();
                 for (String node : nodes) {
+                    classNames.add(node.split("#")[0]);
+                }
+                for (String className : classNames) {
+                    List<String> list = new ArrayList<>();
+                    for (String node : nodes) {
+                        if (node.split("#")[0].equals(className)) {
+                            list.add(node.split("#")[1]);
+                        }
+                    }
                     try {
-                        beanClazzs.add(Class.forName(node.split("#")[0]));
-                        ServiceHandler.nodes.add(node);
+                        beanClazzs.add(Class.forName(className));
                     } catch (ClassNotFoundException e) {
                         e.printStackTrace();
                     }
+                    ServiceHandler.map.put(className, list);
                 }
                 for (Class beanClazz : beanClazzs) {
                     BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(beanClazz);
@@ -66,7 +70,7 @@ public class BeanGetRegist implements BeanDefinitionRegistryPostProcessor, Appli
                     definition.setAutowireMode(GenericBeanDefinition.AUTOWIRE_BY_TYPE);
                     registry.registerBeanDefinition(beanClazz.getSimpleName(), definition);
                 }
-            }else{
+            } else {
                 try {
                     Thread.sleep(3000);
                 } catch (InterruptedException e) {
@@ -75,7 +79,7 @@ public class BeanGetRegist implements BeanDefinitionRegistryPostProcessor, Appli
                 frequency++;
                 postProcessBeanDefinitionRegistry(registry);
             }
-        }else{
+        } else {
             System.err.println("获取消费者列表失败");
             scheduledThreadPool.shutdown();
         }
@@ -107,16 +111,18 @@ public class BeanGetRegist implements BeanDefinitionRegistryPostProcessor, Appli
         return (String) properties.get(key);
     }
 
-    static class Task implements Runnable{
+    static class Task implements Runnable {
         private String rpc_regist_address;
-        public Task(String rpc_regist_address){
+
+        public Task(String rpc_regist_address) {
             this.rpc_regist_address = rpc_regist_address;
         }
+
         public void run() {
             System.out.println("注册中心地址为：" + rpc_regist_address);
             RegistCenter registCenter = new ZookeeperRegist(rpc_regist_address);
             nodes = registCenter.getChildren();
-            if(nodes != null){
+            if (nodes != null) {
                 BeanGetRegist.nodes = nodes;
                 System.out.println("获取节点成功" + nodes);
                 scheduledThreadPool.shutdown();

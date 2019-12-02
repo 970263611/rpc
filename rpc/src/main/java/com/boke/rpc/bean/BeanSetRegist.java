@@ -3,6 +3,7 @@ package com.boke.rpc.bean;
 import com.boke.rpc.annotation.RpcService;
 import com.boke.rpc.client.RpcProviderClient;
 import com.boke.rpc.regist.RegistCenter;
+import com.boke.rpc.util.PortUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -10,7 +11,6 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class BeanSetRegist implements ApplicationListener<ContextRefreshedEvent> {
@@ -21,6 +21,7 @@ public class BeanSetRegist implements ApplicationListener<ContextRefreshedEvent>
     private String rpc_localIp;
 
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
+        final int port = PortUtil.portCanUse();
         //拿到spring容器
         ApplicationContext applicationContext = contextRefreshedEvent.getApplicationContext();
         //拿到所有打了注解 RpcService 的bean
@@ -45,7 +46,7 @@ public class BeanSetRegist implements ApplicationListener<ContextRefreshedEvent>
                     System.err.println(serviceObject.getClass().getName() + " ---> 注册失败");
                     continue;
                 }
-                registCenter.register(registName, rpc_localIp);
+                registCenter.register(registName, rpc_localIp + ":" + port);
                 handlerMap.put(registName, serviceObject);
                 System.err.println(classRealName + "注册成功，接口为" + registName);
                 isStart = true;
@@ -55,11 +56,9 @@ public class BeanSetRegist implements ApplicationListener<ContextRefreshedEvent>
                 e.printStackTrace();
             }
         }
-        List<String> nodes = registCenter.getChildren();
-        System.out.println("获取节点成功" + nodes);
         if (isStart) {
             System.out.println("RPC 服务提供者 开启 ---- > ip: " + rpc_localIp);
-            new RpcProviderClient(handlerMap);
+            new RpcProviderClient(handlerMap, port);
         }
     }
 }

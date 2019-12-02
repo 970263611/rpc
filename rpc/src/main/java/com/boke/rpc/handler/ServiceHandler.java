@@ -6,12 +6,13 @@ import com.boke.rpc.model.RpcResponse;
 import org.springframework.cglib.proxy.InvocationHandler;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ServiceHandler<T> implements InvocationHandler {
 
-    public static List<String> nodes = new ArrayList<>();
+    public static HashMap<String, List<String>> map = new HashMap<>();
 
     private Class<T> interfaceType;
 
@@ -23,10 +24,14 @@ public class ServiceHandler<T> implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Exception {
         String host = null;
-        for(String node:nodes){
-            if(node.contains(method.getDeclaringClass().getName())){
-                host = node.split("#")[1];
+        for (Map.Entry entry : map.entrySet()) {
+            if (method.getDeclaringClass().getName().equals(entry.getKey())) {
+                List<String> classList = (List<String>) entry.getValue();
+                host = classList.get(getRandom(classList.size()));
             }
+        }
+        if (host == null) {
+            throw new Exception();
         }
         RpcRequest request = new RpcRequest();
         request.setRequestId("boke");
@@ -36,10 +41,17 @@ public class ServiceHandler<T> implements InvocationHandler {
         request.setParameters(args);
         RpcConsumerClient client = new RpcConsumerClient(host, request);
         RpcResponse response = client.getResponse();
-        if (response.isError()){
+        if (response.isError()) {
             throw new Exception();
-        }else {
+        } else {
             return response.getResult();
         }
+    }
+
+    //获取随机数，随机调度
+    public int getRandom(int max) {
+        int min = 0;
+        long randomNum = System.currentTimeMillis();
+        return (int) (randomNum % (max - min) + min);
     }
 }
