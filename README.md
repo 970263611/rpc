@@ -18,9 +18,9 @@
 
 ```
 <dependency>
-    <groupId>com.boke</groupId>
+    <groupId>com.dahuaboke</groupId>
     <artifactId>rpc</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
 </dependency>
 ```
 
