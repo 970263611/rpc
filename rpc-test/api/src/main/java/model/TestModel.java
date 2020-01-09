@@ -2,7 +2,7 @@ package model;
 
 public class TestModel {
 
-    private int id;
+    private Integer id;
     private String name;
 
     public int getId() {
