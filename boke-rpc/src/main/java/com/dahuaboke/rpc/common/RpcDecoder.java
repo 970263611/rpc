@@ -8,9 +8,9 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 import java.util.List;
 
 public class RpcDecoder extends ByteToMessageDecoder {
+
     private Class<?> cls;
 
-    //构造函数传入反序列化的class
     public RpcDecoder(Class<?> cls) {
         this.cls = cls;
     }

@@ -5,24 +5,22 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
-public class RpcEncoder extends MessageToByteEncoder{
+public class RpcEncoder extends MessageToByteEncoder {
 
-	private Class<?> cls;
+    private Class<?> cls;
 
-	//构造函数传入序列化的class
-	public RpcEncoder(Class<?> cls) {
-		this.cls = cls;
-	}
+    public RpcEncoder(Class<?> cls) {
+        this.cls = cls;
+    }
 
-	@Override
-	protected void encode(ChannelHandlerContext channelHandlerContext, Object object, ByteBuf out) throws Exception {
-		//对象o序列化成二进制
-		if (cls.isInstance(object)){
-			byte[] data = SerializationUtil.serialize(object);
-			out.writeInt(data.length);
-			out.writeBytes(data);
-		}else{
-			throw new Exception("对象不合法");
-		}
-	}
+    @Override
+    protected void encode(ChannelHandlerContext channelHandlerContext, Object object, ByteBuf out) throws Exception {
+        if (cls.isInstance(object)) {
+            byte[] data = SerializationUtil.serialize(object);
+            out.writeInt(data.length);
+            out.writeBytes(data);
+        } else {
+            throw new Exception("对象不合法");
+        }
+    }
 }
