@@ -33,6 +33,7 @@ public class RpcDecoder extends ByteToMessageDecoder{
 		}
 		if (in.readableBytes() < dataLength){
 			in.resetReaderIndex();
+			return;
 		}
 		//将ByteBuf转换为byte[]
 		byte[] data = new byte[dataLength];

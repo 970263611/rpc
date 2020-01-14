@@ -1,7 +1,7 @@
 package com.boke.rpc.test;
 
 
-import com.boke.rpc.annotation.RpcService;
+import com.dahuaboke.rpc.annotation.RpcService;
 import test.TestServiceOne;
 
 @RpcService
