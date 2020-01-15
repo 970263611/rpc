@@ -51,7 +51,7 @@ rpc.regist.address=localhost:2181
 #使用者身份（消费者）
 rpc.role=consumer
 #注册中心地址
-rpc.regist.address=localhost:2181
+rpc.regist.address=zookeeper://localhost:2181
 ```
 
 ### 扩展

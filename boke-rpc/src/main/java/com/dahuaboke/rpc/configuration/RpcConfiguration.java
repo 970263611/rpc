@@ -6,6 +6,7 @@ import com.dahuaboke.rpc.properties.RpcProperties;
 import com.dahuaboke.rpc.realm.RpcProperty;
 import com.dahuaboke.rpc.realm.file.FileProperty;
 import com.dahuaboke.rpc.regist.RegistCenter;
+import com.dahuaboke.rpc.regist.nodou.NodouRegist;
 import com.dahuaboke.rpc.regist.zk.ZookeeperRegist;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -26,7 +27,13 @@ public class RpcConfiguration {
 
     @Bean
     public RegistCenter RegistCenter() {
-        return new ZookeeperRegist(rpc_regist_address);
+        RegistCenter registCenter = null;
+        if(rpc_regist_address.contains("zookeeper://")){
+            registCenter = new ZookeeperRegist(rpc_regist_address.split("zookeeper://")[1]);
+        }else if(rpc_regist_address.contains("nodou://")){
+            registCenter = new NodouRegist(rpc_regist_address.split("nodou://")[1]);
+        }
+        return registCenter;
     }
 
     @Bean

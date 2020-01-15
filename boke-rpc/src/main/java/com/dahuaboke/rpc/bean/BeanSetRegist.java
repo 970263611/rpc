@@ -48,7 +48,6 @@ public class BeanSetRegist implements ApplicationListener<ContextRefreshedEvent>
                 }
                 registCenter.register(registName, rpc_localIp + ":" + port);
                 handlerMap.put(registName, serviceObject);
-                System.err.println(classRealName + "注册成功，接口为" + registName);
                 isStart = true;
             } catch (ClassNotFoundException e) {
                 System.out.println(classRealName + "没有实现接口");

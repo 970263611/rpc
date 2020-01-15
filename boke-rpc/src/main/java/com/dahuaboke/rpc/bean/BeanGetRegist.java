@@ -3,6 +3,7 @@ package com.dahuaboke.rpc.bean;
 import com.dahuaboke.rpc.handler.ServiceHandler;
 import com.dahuaboke.rpc.proxy.ProxyFactory;
 import com.dahuaboke.rpc.regist.RegistCenter;
+import com.dahuaboke.rpc.regist.nodou.NodouRegist;
 import com.dahuaboke.rpc.regist.zk.ZookeeperRegist;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -89,24 +90,29 @@ public class BeanGetRegist implements BeanDefinitionRegistryPostProcessor, Appli
 
         public void run() {
             System.out.println("注册中心地址为：" + rpc_regist_address);
-            RegistCenter registCenter = new ZookeeperRegist(rpc_regist_address);
-            nodes = registCenter.getChildren();
-            if (nodes != null) {
-                BeanGetRegist.nodes = nodes;
-                System.out.println("获取节点成功" + nodes);
-                try {
-                    getBeanClass();
-                } catch (Exception e) {
-                    e.printStackTrace();
+            if (rpc_regist_address != null && !"".equals(rpc_regist_address)) {
+                RegistCenter registCenter = null;
+                if (rpc_regist_address.contains("zookeeper://")) {
+                    registCenter = new ZookeeperRegist(rpc_regist_address.split("zookeeper://")[1]);
+                } else if (rpc_regist_address.contains("nodou://")) {
+                    registCenter = new NodouRegist(rpc_regist_address.split("nodou://")[1]);
                 }
-            } else {
-                System.out.println("获取节点为空");
+                nodes = registCenter.getChildren();
+                if (nodes != null && nodes.size() > 0) {
+                    BeanGetRegist.nodes = nodes;
+                    System.out.println("获取节点成功" + nodes);
+                    try {
+                        getBeanClass();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
     }
 
     public static Set<Class<?>> getBeanClass() throws Exception {
-        if (nodes != null) {
+        if (nodes != null && nodes.size() > 0) {
             HashMap<String, List<String>> map = new HashMap<>();
             Set<Class<?>> beanClazzs = new HashSet<Class<?>>();
             Set<String> classNames = new HashSet<String>();
