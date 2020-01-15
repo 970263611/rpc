@@ -28,7 +28,7 @@ public class NodouRegist implements RegistCenter {
 
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://" + rpc_regist_address.split("\\?")[0];
-        Map result = restTemplate.getForObject(url, Map.class, paramsMap);
+        Map result = restTemplate.postForObject(url, paramsMap, Map.class);
         if (result != null && (boolean)result.get("state")) {
             System.out.println("注册成功，namenode：" + data + "nodemsg：" + servicePath);
         }
