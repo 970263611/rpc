@@ -34,7 +34,7 @@ public class ServiceHandler<T> implements InvocationHandler {
             throw new Exception();
         }
         RpcRequest request = new RpcRequest();
-        request.setRequestId("boke");
+        request.setRequestId("dahuaboke");
         request.setClassName(method.getDeclaringClass().getName());
         request.setMethodName(method.getName());
         request.setParameterTypes(method.getParameterTypes());
