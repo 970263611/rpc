@@ -26,6 +26,7 @@ public class RpcConfiguration {
     private String rpc_regist_address;
 
     @Bean
+    @ConditionalOnProperty(prefix = "rpc", value = "role", havingValue = "provider")
     public RegistCenter RegistCenter() {
         RegistCenter registCenter = null;
         if(rpc_regist_address.contains("zookeeper://")){
