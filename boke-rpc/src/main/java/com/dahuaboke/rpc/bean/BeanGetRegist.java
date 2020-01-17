@@ -78,7 +78,6 @@ public class BeanGetRegist implements BeanDefinitionRegistryPostProcessor, Appli
 
     public static void init(String rpc_regist_address) throws IOException {
         scheduledThreadPool.scheduleAtFixedRate(new Task(rpc_regist_address), 0, 10, TimeUnit.SECONDS);
-        scheduledThreadPool.execute(new Task(rpc_regist_address));
     }
 
     static class Task implements Runnable {
