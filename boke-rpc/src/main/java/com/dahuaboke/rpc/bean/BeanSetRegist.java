@@ -21,7 +21,7 @@ public class BeanSetRegist implements ApplicationListener<ContextRefreshedEvent>
     private String rpc_localIp;
 
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
-        final int port = PortUtil.portCanUse();
+        //final int port = PortUtil.portCanUse();
         //拿到spring容器
         ApplicationContext applicationContext = contextRefreshedEvent.getApplicationContext();
         //拿到所有打了注解 RpcService 的bean
@@ -46,7 +46,8 @@ public class BeanSetRegist implements ApplicationListener<ContextRefreshedEvent>
                     System.err.println(serviceObject.getClass().getName() + " ---> 注册失败");
                     continue;
                 }
-                registCenter.register(registName, rpc_localIp + ":" + port);
+                //registCenter.register(registName, rpc_localIp + ":" + port);
+                registCenter.register(registName, rpc_localIp);
                 handlerMap.put(registName, serviceObject);
                 isStart = true;
             } catch (ClassNotFoundException e) {
@@ -57,7 +58,7 @@ public class BeanSetRegist implements ApplicationListener<ContextRefreshedEvent>
         }
         if (isStart) {
             System.out.println("RPC 服务提供者 开启 ---- > ip: " + rpc_localIp);
-            new RpcProviderClient(handlerMap, port);
+            new RpcProviderClient(handlerMap, Integer.parseInt(rpc_localIp.split(":")[1]));
         }
     }
 }

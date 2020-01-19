@@ -30,7 +30,7 @@
 
 消费者无端口占用
 
-提供者默认采用13579端口，当同一台机器部署多个提供者时，会自动向下寻找端口
+提供者默认采用localIp配置的端口，当同一台机器部署多个提供者时，请配置不同端口
 
 ### 使用配置
 
@@ -40,9 +40,9 @@
 #使用者身份（提供者）
 rpc.role=provider
 #消费者暴漏的本机ip（容器化部署时可以通过端口映射之后填写宿主机ip）
-rpc.localIp=localhost
+rpc.localIp=localhost:13579
 #注册中心地址
-rpc.regist.address=localhost:2181 
+rpc.regist.address=zookeeper://localhost:2181 
 ```
 
 ##### consumer（消费者）
