@@ -23,7 +23,6 @@ import java.util.concurrent.TimeUnit;
 public class BeanGetRegist implements BeanDefinitionRegistryPostProcessor, ApplicationContextAware {
 
     public static List<String> nodes;
-    private static ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1);
 
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) {
         if (nodes != null) {
@@ -74,40 +73,6 @@ public class BeanGetRegist implements BeanDefinitionRegistryPostProcessor, Appli
 
     public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) throws BeansException {
 
-    }
-
-    public static void init(String rpc_regist_address) throws IOException {
-        scheduledThreadPool.scheduleAtFixedRate(new Task(rpc_regist_address), 0, 10, TimeUnit.SECONDS);
-    }
-
-    static class Task implements Runnable {
-        private String rpc_regist_address;
-
-        public Task(String rpc_regist_address) {
-            this.rpc_regist_address = rpc_regist_address;
-        }
-
-        public void run() {
-            System.out.println("注册中心地址为：" + rpc_regist_address);
-            if (rpc_regist_address != null && !"".equals(rpc_regist_address)) {
-                RegistCenter registCenter = null;
-                if (rpc_regist_address.contains("zookeeper://")) {
-                    registCenter = new ZookeeperRegist(rpc_regist_address.split("zookeeper://")[1]);
-                } else if (rpc_regist_address.contains("nodou://")) {
-                    registCenter = new NodouRegist(rpc_regist_address.split("nodou://")[1]);
-                }
-                nodes = registCenter.getChildren();
-                if (nodes != null && nodes.size() > 0) {
-                    BeanGetRegist.nodes = nodes;
-                    System.out.println("获取节点成功" + nodes);
-                    try {
-                        getBeanClass();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
     }
 
     public static Set<Class<?>> getBeanClass() throws Exception {

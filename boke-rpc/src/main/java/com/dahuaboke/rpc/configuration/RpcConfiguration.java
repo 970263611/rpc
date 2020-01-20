@@ -21,13 +21,15 @@ import java.util.List;
 @EnableConfigurationProperties({RpcProperties.class})
 public class RpcConfiguration {
 
-    private static List<String> nodes;
     @Value("${rpc.regist.address}")
     private String rpc_regist_address;
 
     @Bean
-    @ConditionalOnProperty(prefix = "rpc", value = "role", havingValue = "provider")
     public RegistCenter RegistCenter() {
+        if(rpc_regist_address == null){
+            RpcProperty rpcProperty = new FileProperty();
+            rpc_regist_address = rpcProperty.getRegistAdd("rpc.regist.address");
+        }
         RegistCenter registCenter = null;
         if(rpc_regist_address.contains("zookeeper://")){
             registCenter = new ZookeeperRegist(rpc_regist_address.split("zookeeper://")[1]);
@@ -45,10 +47,8 @@ public class RpcConfiguration {
 
     @Bean
     @ConditionalOnProperty(prefix = "rpc", value = "role", havingValue = "consumer")
-    public BeanGetRegist beanGetRegist() throws IOException {
-        RpcProperty rpcProperty = new FileProperty();
-        String rpc_regist_address = rpcProperty.getRegistAdd("rpc.regist.address");
-        BeanGetRegist.init(rpc_regist_address);
+    public BeanGetRegist beanGetRegist(RegistCenter registCenter) {
+        BeanGetRegist.nodes = registCenter.getChildren();
         return new BeanGetRegist();
     }
 
