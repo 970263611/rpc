@@ -31,7 +31,7 @@ public class NodouRegist implements RegistCenter {
         paramsMap.put("type", "add");
         Map result = restTemplate.postForObject(url, paramsMap, Map.class);
         if (result != null && (boolean)result.get("state")) {
-            System.out.println("注册成功，namenode：" + data + "nodemsg：" + servicePath);
+            System.out.println("注册成功，namenode：" + data + "。nodemsg：" + servicePath);
         }
     }
 

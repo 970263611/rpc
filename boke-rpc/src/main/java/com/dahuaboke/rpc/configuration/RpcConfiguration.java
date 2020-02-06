@@ -15,7 +15,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.*;
 
 @Configuration
 @EnableConfigurationProperties({RpcProperties.class})
@@ -23,6 +25,7 @@ public class RpcConfiguration {
 
     @Value("${rpc.regist.address}")
     private String rpc_regist_address;
+    private static ScheduledExecutorService pool = Executors.newScheduledThreadPool(1);
 
     @Bean
     public RegistCenter RegistCenter() {
@@ -48,9 +51,26 @@ public class RpcConfiguration {
     @Bean
     @ConditionalOnProperty(prefix = "rpc", value = "role", havingValue = "consumer")
     public BeanGetRegist beanGetRegist(RegistCenter registCenter) {
+        pool.scheduleAtFixedRate(new Task(registCenter),5,30,TimeUnit.SECONDS);
         BeanGetRegist.nodes = registCenter.getChildren();
         return new BeanGetRegist();
     }
 
+    class Task implements Runnable{
+        private RegistCenter registCenter;
+        public Task(RegistCenter registCenter){
+            this.registCenter = registCenter;
+        }
+        @Override
+        public void run() {
+            BeanGetRegist.nodes = registCenter.getChildren();
+            try {
+                BeanGetRegist.getBeanClass();
+                System.out.println(new Date() + "注册中心节点初始化成功");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 }
