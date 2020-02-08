@@ -1,6 +1,9 @@
 package com.dahuaboke.rpc.regist.nodou;
 
 import com.dahuaboke.rpc.regist.RegistCenter;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -45,7 +48,10 @@ public class NodouRegist implements RegistCenter {
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://" + rpc_regist_address.split("\\?")[0];
         paramsMap.put("type", "get");
-        Map result = restTemplate.postForObject(url, paramsMap, Map.class);
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<HashMap> requestEntity = new HttpEntity<>(paramsMap, requestHeaders);
+        Map result = restTemplate.postForObject(url, requestEntity, Map.class);
         List<String> list = new ArrayList<>();
         if (result != null && (boolean)result.get("state") && result.get("obj") != null) {
             Map map = (Map) result.get("obj");
