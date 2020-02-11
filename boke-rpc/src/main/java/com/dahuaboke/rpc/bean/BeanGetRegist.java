@@ -2,25 +2,16 @@ package com.dahuaboke.rpc.bean;
 
 import com.dahuaboke.rpc.handler.ServiceHandler;
 import com.dahuaboke.rpc.proxy.ProxyFactory;
-import com.dahuaboke.rpc.regist.RegistCenter;
-import com.dahuaboke.rpc.regist.nodou.NodouRegist;
-import com.dahuaboke.rpc.regist.zk.ZookeeperRegist;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
-import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
-public class BeanGetRegist implements BeanDefinitionRegistryPostProcessor, ApplicationContextAware {
+public class BeanGetRegist implements BeanDefinitionRegistryPostProcessor {
 
     public static List<String> nodes;
 
@@ -63,12 +54,6 @@ public class BeanGetRegist implements BeanDefinitionRegistryPostProcessor, Appli
             System.err.println("获取消费者列表失败");
             postProcessBeanDefinitionRegistry(registry);
         }
-    }
-
-    private ApplicationContext applicationContext;
-
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
     }
 
     public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) throws BeansException {
