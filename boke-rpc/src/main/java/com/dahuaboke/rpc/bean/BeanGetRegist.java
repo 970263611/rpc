@@ -2,7 +2,9 @@ package com.dahuaboke.rpc.bean;
 
 import com.dahuaboke.rpc.handler.ServiceHandler;
 import com.dahuaboke.rpc.proxy.ProxyFactory;
+import com.dahuaboke.rpc.regist.RegistCenter;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -10,10 +12,20 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProce
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class BeanGetRegist implements BeanDefinitionRegistryPostProcessor {
 
-    public static List<String> nodes;
+    public volatile static List<String> nodes;
+    private static ScheduledExecutorService pool = Executors.newScheduledThreadPool(1);
+    @Autowired
+    private RegistCenter registCenter;
+
+    public BeanGetRegist() {
+        pool.scheduleAtFixedRate(new Task(registCenter), 0, 30, TimeUnit.SECONDS);
+    }
 
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) {
         if (nodes != null) {
@@ -86,6 +98,27 @@ public class BeanGetRegist implements BeanDefinitionRegistryPostProcessor {
             return beanClazzs;
         } else {
             throw new Exception();
+        }
+    }
+
+    class Task implements Runnable {
+
+        private RegistCenter registCenter;
+
+        public Task(RegistCenter registCenter) {
+            this.registCenter = registCenter;
+        }
+
+        @Override
+        public void run() {
+            nodes = registCenter.getChildren();
+            if (nodes != null) {
+                try {
+                    BeanGetRegist.getBeanClass();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }

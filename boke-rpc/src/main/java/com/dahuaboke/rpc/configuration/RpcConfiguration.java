@@ -23,14 +23,13 @@ import java.util.concurrent.TimeUnit;
 public class RpcConfiguration implements EnvironmentAware {
 
     private String rpc_regist_address;
-    private static ScheduledExecutorService pool = Executors.newScheduledThreadPool(1);
 
     @Bean
     public RegistCenter RegistCenter() {
         RegistCenter registCenter = null;
-        if (rpc_regist_address.contains("zookeeper://")) {
+        if (rpc_regist_address.startsWith("zookeeper://")) {
             registCenter = new ZookeeperRegist(rpc_regist_address.split("zookeeper://")[1]);
-        } else if (rpc_regist_address.contains("nodou://")) {
+        } else if (rpc_regist_address.startsWith("nodou://")) {
             registCenter = new NodouRegist(rpc_regist_address.split("nodou://")[1]);
         }
         return registCenter;
@@ -44,34 +43,13 @@ public class RpcConfiguration implements EnvironmentAware {
 
     @Bean
     @ConditionalOnProperty(prefix = "rpc", value = "role", havingValue = "consumer")
-    public BeanGetRegist beanGetRegist(RegistCenter registCenter) {
-        pool.scheduleAtFixedRate(new Task(registCenter), 5, 30, TimeUnit.SECONDS);
-        BeanGetRegist.nodes = registCenter.getChildren();
+    public BeanGetRegist beanGetRegist() {
         return new BeanGetRegist();
     }
 
     @Override
     public void setEnvironment(Environment environment) {
         rpc_regist_address = environment.getProperty("rpc.regist.address");
-    }
-
-    class Task implements Runnable {
-        private RegistCenter registCenter;
-
-        public Task(RegistCenter registCenter) {
-            this.registCenter = registCenter;
-        }
-
-        @Override
-        public void run() {
-            BeanGetRegist.nodes = registCenter.getChildren();
-            try {
-                BeanGetRegist.getBeanClass();
-                System.out.println(new Date() + "注册中心节点初始化成功");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
     }
 
 }
