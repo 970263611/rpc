@@ -4,8 +4,12 @@ import com.dahuaboke.rpc.regist.RegistCenter;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,51 +17,37 @@ import java.util.Map;
 
 public class NodouRegist implements RegistCenter {
 
-    private String rpc_regist_address;
+    private Map param;
 
-    public NodouRegist(String address) {
-        this.rpc_regist_address = address;
+    public NodouRegist(Map param) {
+        this.param = param;
     }
 
     @Override
     public void register(String data, String servicePath) {
-        HashMap<String, String> paramsMap = new HashMap<>();
-        String[] params = rpc_regist_address.split("\\?")[1].split("&");
-        for (String param : params) {
-            paramsMap.put(param.split("=")[0], param.split("=")[1]);
-        }
-        paramsMap.put("nameNode", data);
-        paramsMap.put("nodeMsg", servicePath);
-
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://" + rpc_regist_address.split("\\?")[0];
-        paramsMap.put("type", "add");
-        Map result = restTemplate.postForObject(url, paramsMap, Map.class);
-        if (result != null && (boolean)result.get("state")) {
-            System.out.println("注册成功，namenode：" + data + "。nodemsg：" + servicePath);
+        String result = restTemplate.postForObject((String) param.get("rpc_regist_address"), param, String.class);
+        if ("ok".equals(result)) {
+            System.out.println("注册成功，namenode：" + data + "。nodemsg：" + servicePath + "。version：" + param.get("version") + "。autoRemove：" + param.get("autoRemove"));
         }
     }
 
     @Override
     public List<String> getChildren() {
-        HashMap<String, String> paramsMap = new HashMap<>();
-        String[] params = rpc_regist_address.split("\\?")[1].split("&");
-        for (String param : params) {
-            paramsMap.put(param.split("=")[0], param.split("=")[1]);
-        }
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://" + rpc_regist_address.split("\\?")[0];
-        paramsMap.put("type", "get");
-        HttpHeaders requestHeaders = new HttpHeaders();
-        requestHeaders.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<HashMap> requestEntity = new HttpEntity<>(paramsMap, requestHeaders);
-        Map result = restTemplate.postForObject(url, requestEntity, Map.class);
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("username", (String) param.get("username"));
+        params.add("password",(String) param.get("password"));
+        params.add("version",(String) param.get("version"));
+        params.add("autoRemove",(String) param.get("autoRemove"));
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl((String) param.get("rpc_regist_address"));
+        URI uri = builder.queryParams(params).build().encode().toUri();
+        Map result = restTemplate.getForObject(uri, Map.class);
         List<String> list = new ArrayList<>();
-        if (result != null && (boolean)result.get("state") && result.get("obj") != null) {
-            Map map = (Map) result.get("obj");
-            for(Object key : map.keySet()){
-                List<String> valueList = (List<String>) map.get(key);
-                for(String value : valueList){
+        if (result != null) {
+            for (Object key : result.keySet()) {
+                List<String> valueList = (List<String>) result.get(key);
+                for (String value : valueList) {
                     list.add(key + "#" + value);
                 }
             }

@@ -41,8 +41,14 @@
 rpc.role=provider
 #消费者暴漏的本机ip（容器化部署时可以通过端口映射之后填写宿主机ip）
 rpc.localIp=localhost:13579
-#注册中心地址
-rpc.regist.address=zookeeper://localhost:2181 
+#注册中心地址 zookeeper方式
+	rpc.regist.address=zookeeper://localhost:2181 
+#注册中心地址 nodou方式（支持身份验证和心跳是否移除以及不同版本）
+	rpc.regist.address=nodou://localhost:9888
+	rpc.nodou.username=username
+	rpc.nodou.password=password
+	rpc.nodou.version=1.0.0
+	rpc.nodou.autoRemove=true
 ```
 
 ##### consumer（消费者）
@@ -50,8 +56,14 @@ rpc.regist.address=zookeeper://localhost:2181
 ```
 #使用者身份（消费者）
 rpc.role=consumer
-#注册中心地址
-rpc.regist.address=zookeeper://localhost:2181
+#注册中心地址 zookeeper方式
+	rpc.regist.address=zookeeper://localhost:2181
+#注册中心地址 nodou方式（支持身份验证和心跳是否移除以及不同版本）
+	rpc.regist.address=nodou://localhost:9888
+	rpc.nodou.username=username
+	rpc.nodou.password=password
+	rpc.nodou.version=1.0.0
+	rpc.nodou.autoRemove=true
 ```
 
 ### 扩展

@@ -13,16 +13,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
-import java.util.Date;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 @EnableConfigurationProperties({RpcProperties.class})
 public class RpcConfiguration implements EnvironmentAware {
 
     private String rpc_regist_address;
+    private String nodou_username;
+    private String nodou_password;
+    private String nodou_version;
+    private String nodou_autoRemove;
 
     @Bean
     public RegistCenter RegistCenter() {
@@ -30,7 +32,13 @@ public class RpcConfiguration implements EnvironmentAware {
         if (rpc_regist_address.startsWith("zookeeper://")) {
             registCenter = new ZookeeperRegist(rpc_regist_address.split("zookeeper://")[1]);
         } else if (rpc_regist_address.startsWith("nodou://")) {
-            registCenter = new NodouRegist(rpc_regist_address.split("nodou://")[1]);
+            Map param = new HashMap();
+            param.put("rpc_regist_address", "http://" + rpc_regist_address.split("nodou://")[1]);
+            param.put("nodou_username", nodou_username);
+            param.put("nodou_password", nodou_password);
+            param.put("nodou_version", nodou_version);
+            param.put("nodou_autoRemove", nodou_autoRemove);
+            registCenter = new NodouRegist(param);
         }
         return registCenter;
     }
@@ -50,6 +58,10 @@ public class RpcConfiguration implements EnvironmentAware {
     @Override
     public void setEnvironment(Environment environment) {
         rpc_regist_address = environment.getProperty("rpc.regist.address");
+        nodou_username = environment.getProperty("rpc.nodou.username");
+        nodou_password = environment.getProperty("rpc.nodou.password");
+        nodou_version = environment.getProperty("rpc.nodou.version");
+        nodou_autoRemove = environment.getProperty("rpc.nodou.autoRemove");
     }
 
 }
