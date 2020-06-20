@@ -23,8 +23,10 @@ public class BeanGetRegist implements BeanDefinitionRegistryPostProcessor {
     @Autowired
     private RegistCenter registCenter;
 
-    public BeanGetRegist() {
-        pool.scheduleAtFixedRate(new Task(registCenter), 0, 30, TimeUnit.SECONDS);
+    public BeanGetRegist(String nodou_autoRemove) {
+        if (Boolean.valueOf(nodou_autoRemove)) {
+            pool.scheduleAtFixedRate(new Task(registCenter), 0, 30, TimeUnit.SECONDS);
+        }
     }
 
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) {

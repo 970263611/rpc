@@ -52,7 +52,7 @@ public class RpcConfiguration implements EnvironmentAware {
     @Bean
     @ConditionalOnProperty(prefix = "rpc", value = "role", havingValue = "consumer")
     public BeanGetRegist beanGetRegist() {
-        return new BeanGetRegist();
+        return new BeanGetRegist(nodou_autoRemove);
     }
 
     @Override
