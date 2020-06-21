@@ -4,7 +4,6 @@ import com.dahuaboke.rpc.handler.ServiceHandler;
 import com.dahuaboke.rpc.proxy.ProxyFactory;
 import com.dahuaboke.rpc.regist.RegistCenter;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -20,12 +19,19 @@ public class BeanGetRegist implements BeanDefinitionRegistryPostProcessor {
 
     public volatile static List<String> nodes;
     private static ScheduledExecutorService pool = Executors.newScheduledThreadPool(1);
-    @Autowired
-    private RegistCenter registCenter;
 
-    public BeanGetRegist(String nodou_autoRemove) {
+    public BeanGetRegist(RegistCenter registCenter, String nodou_autoRemove) {
         if (Boolean.valueOf(nodou_autoRemove)) {
             pool.scheduleAtFixedRate(new Task(registCenter), 0, 30, TimeUnit.SECONDS);
+        } else {
+            nodes = registCenter.getChildren();
+            if (nodes != null) {
+                try {
+                    BeanGetRegist.getBeanClass();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

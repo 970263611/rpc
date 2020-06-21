@@ -34,10 +34,10 @@ public class RpcConfiguration implements EnvironmentAware {
         } else if (rpc_regist_address.startsWith("nodou://")) {
             Map param = new HashMap();
             param.put("rpc_regist_address", "http://" + rpc_regist_address.split("nodou://")[1]);
-            param.put("nodou_username", nodou_username);
-            param.put("nodou_password", nodou_password);
-            param.put("nodou_version", nodou_version);
-            param.put("nodou_autoRemove", nodou_autoRemove);
+            param.put("username", nodou_username);
+            param.put("password", nodou_password);
+            param.put("version", nodou_version);
+            param.put("autoRemove", nodou_autoRemove);
             registCenter = new NodouRegist(param);
         }
         return registCenter;
@@ -51,8 +51,8 @@ public class RpcConfiguration implements EnvironmentAware {
 
     @Bean
     @ConditionalOnProperty(prefix = "rpc", value = "role", havingValue = "consumer")
-    public BeanGetRegist beanGetRegist() {
-        return new BeanGetRegist(nodou_autoRemove);
+    public BeanGetRegist beanGetRegist(RegistCenter registCenter) {
+        return new BeanGetRegist(registCenter,nodou_autoRemove);
     }
 
     @Override
