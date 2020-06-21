@@ -7,6 +7,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 
@@ -35,7 +36,15 @@ public class ProviderHandler extends ChannelInboundHandlerAdapter {
         Object[] parameters = request.getParameters();
         Class<?> forName = Class.forName(className);
         Method method = forName.getMethod(methodName, parameterTypes);
-        rpcResponse.setResult(method.invoke(serviceBean, parameters)); //反射，不大懂
+        Object obj = null;
+        try {
+            obj = method.invoke(serviceBean, parameters);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        rpcResponse.setResult(obj);
         //写入outbundle(即RpcEncoder)进行下一步处理（即编码）后发送到channel中给客户端
         ctx.writeAndFlush(rpcResponse);
         //释放msg
