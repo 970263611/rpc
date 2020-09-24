@@ -49,9 +49,9 @@ public class RpcConsumerClient {
                 }
             });
             ChannelFuture channelFuture = bootstrap.connect(host.split(":")[0], Integer.parseInt(host.split(":")[1])).sync();
-            if (channelFuture.isSuccess()) {
-                System.out.println("连接服务器成功url：" + host.split(":")[0] + "端口：" + Integer.parseInt(host.split(":")[1]));
-            }
+//            if (channelFuture.isSuccess()) {
+//                System.out.println("连接服务器成功url：" + host.split(":")[0] + "端口：" + Integer.parseInt(host.split(":")[1]));
+//            }
             channelFuture.channel().closeFuture().sync();
             this.response = handle.getRpcResponse();
         } finally {
