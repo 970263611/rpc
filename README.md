@@ -1,5 +1,7 @@
 ### dahuaboke-rpc
 
+[![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
+
 纯自己手动编写的rpc框架，已经做成了starter，使用超级方便，天然支持高可用。
 
 ### 性能测试
@@ -84,3 +86,4 @@ rpc.role=consumer
 QQ  ：
     970263611
 
+[![LICENSE](https://img.shields.io/badge/license-Anti%20996-blue.svg)](https://github.com/996icu/996.ICU/blob/master/LICENSE)
